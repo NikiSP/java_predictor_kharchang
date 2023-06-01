@@ -23,15 +23,15 @@ public class PAg implements BranchPredictor {
      * @param branchInstructionSize the number of bits which is used for saving a branch instruction
      */
     public PAg(int BHRSize, int SCSize, int branchInstructionSize) {
-        // TODO: complete the constructor
-        // Initialize the PABHR with the given bhr and branch instruction size
-        PABHR = null;
+        // TODO : complete the constructor
+        // Initialize the BHR register with the given size and no default value
+        this.PABHR = new RegisterBank((int)Math.pow(2,branchInstructionSize), BHRSize);
 
         // Initialize the PHT with a size of 2^size and each entry having a saturating counter of size "SCSize"
-        PHT = null;
+        PHT = new PageHistoryTable((int)Math.pow(2,BHRSize), SCSize);
 
         // Initialize the SC register
-        SC = null;
+        SC = new SIPORegister("SC", SCSize, null);
     }
 
     /**
@@ -41,7 +41,9 @@ public class PAg implements BranchPredictor {
     @Override
     public BranchResult predict(BranchInstruction instruction) {
         // TODO: complete Task 1
-        return BranchResult.NOT_TAKEN;
+        PHT.putIfAbsent(PABHR.read(instruction.getInstructionAddress()).read(), getDefaultBlock());
+        SC.load(PHT.get(PABHR.read(instruction.getInstructionAddress()).read()));
+        return (BranchResult.of((SC.read()[0]).getValue()));
     }
 
     /**
@@ -51,6 +53,10 @@ public class PAg implements BranchPredictor {
     @Override
     public void update(BranchInstruction instruction, BranchResult actual) {
         // TODO: complete Task 2
+        Bit[] updated_value=CombinationalLogic.count(SC.read(), actual==BranchResult.TAKEN, CountMode.SATURATING);
+        PHT.put(PABHR.read(instruction.getInstructionAddress()).read(), updated_value);
+        PABHR.write(instruction.getInstructionAddress(), updated_value);
+
     }
 
     /**
