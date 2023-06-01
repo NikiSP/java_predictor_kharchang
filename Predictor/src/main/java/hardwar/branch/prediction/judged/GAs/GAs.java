@@ -29,19 +29,18 @@ public class GAs implements BranchPredictor {
      */
     public GAs(int BHRSize, int SCSize, int branchInstructionSize, int KSize, HashMode hashmode) {
         // TODO: complete the constructor
-        this.branchInstructionSize = 0;
-        this.KSize = 0;
+        this.KSize = KSize;
         this.hashMode = HashMode.XOR;
-
+        // TODO: complete the constructor
+        this.branchInstructionSize = branchInstructionSize;
         // Initialize the BHR register with the given size and no default value
-        BHR = null;
+        this.BHR = new SIPORegister("BHR", BHRSize, null);
 
-        // Initializing the PAPHT with K bit as PHT selector and 2^BHRSize row as each PHT entries
-        // number and SCSize as block size
-        PSPHT = null;
+        // Initialize the PHT with a size of 2^size and each entry having a saturating counter of size "SCSize"
+        PSPHT = new PageHistoryTable((int)Math.pow(2,BHRSize+KSize), SCSize);
 
-        // Initialize the saturating counter
-        SC = null;
+        // Initialize the SC register
+        SC = new SIPORegister("SC", SCSize, null);
     }
 
     /**
@@ -53,8 +52,12 @@ public class GAs implements BranchPredictor {
      */
     @Override
     public BranchResult predict(BranchInstruction branchInstruction) {
-        // TODO: complete Task 1
-        return BranchResult.NOT_TAKEN;
+         // TODO: complete Task 1
+         Bit[] newAddress= getCacheEntry(branchInstruction.getInstructionAddress());
+
+         PSPHT.putIfAbsent(newAddress, getDefaultBlock());
+         SC.load(PSPHT.get(newAddress));
+         return (BranchResult.of((SC.read()[0]).getValue()));
     }
 
     /**
@@ -66,6 +69,11 @@ public class GAs implements BranchPredictor {
     @Override
     public void update(BranchInstruction branchInstruction, BranchResult actual) {
         // TODO: complete Task 2
+        Bit[] newAddress= getCacheEntry(branchInstruction.getInstructionAddress());
+
+        Bit[] updated_value=CombinationalLogic.count(SC.read(), actual==BranchResult.TAKEN, CountMode.SATURATING);
+        PSPHT.put(newAddress, updated_value);
+        BHR.insert(Bit.of(actual==BranchResult.TAKEN));
     }
 
     /**
