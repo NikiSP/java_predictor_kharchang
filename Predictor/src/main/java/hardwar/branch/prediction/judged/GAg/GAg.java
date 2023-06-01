@@ -42,7 +42,8 @@ public class GAg implements BranchPredictor {
     @Override
     public BranchResult predict(BranchInstruction branchInstruction) {
         // TODO : complete Task 1
-        SC.load(PHT.get(
+        SC.load(
+            PHT.get(
             BHR.read()));
         return (BranchResult.of((SC.read()[0]).getValue()));
 
