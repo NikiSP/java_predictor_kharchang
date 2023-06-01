@@ -42,7 +42,8 @@ public class GAg implements BranchPredictor {
     @Override
     public BranchResult predict(BranchInstruction branchInstruction) {
         // TODO : complete Task 1
-        SC.load(PHT.get(this.BHR.read()));
+        SC.load(PHT.get(
+            BHR.read()));
         return (BranchResult.of((SC.read()[0]).getValue()));
 
     }
@@ -55,11 +56,8 @@ public class GAg implements BranchPredictor {
      */
     @Override
     public void update(BranchInstruction instruction, BranchResult actual) {
-        // TODO: complete Task 2
         assert SC!=null;
         Bit[] updated_value=CombinationalLogic.count(SC.read(), actual==BranchResult.TAKEN, CountMode.SATURATING);
-        assert BHR!=null;
-        assert PHT!=null;
         PHT.put(BHR.read(), updated_value);
         BHR.insert(Bit.of(actual==BranchResult.TAKEN));
 
