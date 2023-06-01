@@ -42,6 +42,8 @@ public class GAg implements BranchPredictor {
     @Override
     public BranchResult predict(BranchInstruction branchInstruction) {
         // TODO : complete Task 1
+
+        PHT.putIfAbsent(BHR.read(), getDefaultBlock());
         SC.load(
             PHT.get(
             BHR.read()));
@@ -78,4 +80,5 @@ public class GAg implements BranchPredictor {
     public String monitor() {
         return "GAg predictor snapshot: \n" + BHR.monitor() + SC.monitor() + PHT.monitor();
     }
+
 }
