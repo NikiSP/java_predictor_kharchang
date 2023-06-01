@@ -25,7 +25,7 @@ public class PAg implements BranchPredictor {
     public PAg(int BHRSize, int SCSize, int branchInstructionSize) {
         // TODO : complete the constructor
         // Initialize the BHR register with the given size and no default value
-        this.PABHR = new RegisterBank((int)Math.pow(2,branchInstructionSize), BHRSize);
+        this.PABHR = new RegisterBank(branchInstructionSize, BHRSize);
 
         // Initialize the PHT with a size of 2^size and each entry having a saturating counter of size "SCSize"
         PHT = new PageHistoryTable((int)Math.pow(2,BHRSize), SCSize);
