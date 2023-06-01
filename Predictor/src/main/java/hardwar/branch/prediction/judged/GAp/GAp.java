@@ -63,9 +63,10 @@ public class GAp implements BranchPredictor {
     @Override
     public void update(BranchInstruction branchInstruction, BranchResult actual) {
         // TODO : complete Task 2
+        Bit[] newAddress= getCacheEntry(branchInstruction.getInstructionAddress());
 
         Bit[] updated_value=CombinationalLogic.count(SC.read(), actual==BranchResult.TAKEN, CountMode.SATURATING);
-        PAPHT.put(BHR.read(), updated_value);
+        PAPHT.put(newAddress, updated_value);
         BHR.insert(Bit.of(actual==BranchResult.TAKEN));
 
     }
